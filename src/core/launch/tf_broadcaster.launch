@@ -1,0 +1,7 @@
+<launch>
+	<node pkg="core" type="tf_broadcaster" name="TfBroadcaster">
+		<param name="x_trans" type="double" value="0.5"/>
+		<param name="y_trans" type="double" value="0.5"/>
+		<param name="z_trans" type="double" value="0.5"/>
+	</node>
+</launch>

@@ -1,0 +1,10 @@
+<launch>
+	<master auto="start"/>
+
+	<include file="$(find perception)/launch/camera.launch"/>
+
+	<include file="$(find perception)/launch/perception.launch"/>
+
+	<include file="$(find core)/launch/tf_broadcaster.launch"/>
+
+</launch>

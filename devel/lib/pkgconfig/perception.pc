@@ -1,0 +1,8 @@
+prefix=/home/cuhsailus/Aerotech_Robot_Arm/devel
+
+Name: perception
+Description: Description of perception
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
