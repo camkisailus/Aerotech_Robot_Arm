@@ -1,2 +1,0 @@
-core:perception
--DCATKIN_DEVEL_PREFIX=/home/cuhsailus/Aerotech_Robot_Arm/devel -DCMAKE_INSTALL_PREFIX=/home/cuhsailus/Aerotech_Robot_Arm/install -G Unix Makefiles

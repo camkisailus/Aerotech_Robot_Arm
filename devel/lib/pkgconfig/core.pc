@@ -1,8 +1,0 @@
-prefix=/home/cuhsailus/Aerotech_Robot_Arm/devel
-
-Name: core
-Description: Description of core
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 
