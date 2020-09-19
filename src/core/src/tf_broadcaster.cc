@@ -17,7 +17,7 @@ int main(int argc, char** argv){
 		broadcaster.sendTransform(
 			tf::StampedTransform(
 				tf::Transform(tf::Quaternion(0,0,0,1), tf::Vector3(x_trans,y_trans,z_trans)),
-				ros::Time::now(), "base_link", "camera_link"));
+				ros::Time::now(), "rx150/base_link", "camera_link"));
 		r.sleep();
 	}
 }
