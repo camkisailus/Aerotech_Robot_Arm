@@ -5,8 +5,8 @@ from interbotix_descriptions import interbotix_mr_descriptions as mrd
 
 def main():
     arm = InterbotixRobot(robot_name="rx150", mrd=mrd)
-    arm.go_to_home_pose()
-    arm.set_ee_pose_components(x=0.3, y= 0.1, z=0.6)
+    arm.set_gripper_pressure(2.0)
+    arm.close_gripper()
 
 if __name__=='__main__':
     main()

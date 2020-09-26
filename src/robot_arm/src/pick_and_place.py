@@ -4,47 +4,47 @@ import time
 from interbotix_sdk.robot_manipulation import InterbotixRobot
 from interbotix_descriptions import interbotix_mr_descriptions as mrd
 from geometry_msgs.msg import PointStamped, Point
+from std_msgs.msg import String
 
 class PickAndPlace:
     def __init__(self):
         self.arm = InterbotixRobot(robot_name="rx150", mrd=mrd)
         self.arm.set_gripper_pressure(2)
         self.pt_sub = rospy.Subscriber('/detections/real_center_base_link', PointStamped, self.callback, queue_size=1)
+        self.relay_pub = rospy.Publisher('/vacuum', String, queue_size = 1)
         self.target = Point()
-        self.target.x = 0.0
-        self.target.y = -0.2
-        self.target.z = 0.4
+        self.target.x = 0.2
+        self.target.y = 0.2
+        self.target.z = 0.2
 
     def callback(self,msg):
-    	# Wake up
+        # Wake up
         self.arm.go_to_home_pose()
-        self.arm.close_gripper()
-        self.arm.open_gripper()
 
         # Move to passed point
         pt = msg.point
-        self.arm.set_ee_pose_components(x=pt.x, y=pt.y, z=pt.z)
+        self.arm.set_ee_pose_components(x=pt.x, y=pt.y, z=0.0762)
         self.turn_on_vacuum()
         time.sleep(2.0)
-        self.arm.close_gripper()
+        self.arm.go_to_home_pose()
 
         # Move to target
         self.arm.set_ee_pose_components(x=self.target.x, y=self.target.y, z=self.target.z)
         time.sleep(3.0)
         self.turn_off_vacuum()
-        self.arm.open_gripper()
+        time.sleep(1.0)
 
         # Sleep
         self.arm.go_to_home_pose()
         self.arm.go_to_sleep_pose()
-        self.arm.close_gripper()
 
 
     def turn_on_vacuum(self):
-    	print("Turning on vacuum")
+        self.relay_pub.publish(String("ON"))
+        
 
     def turn_off_vacuum(self):
-    	print("Turning off vacuum")
+        self.relay_pub.publish(String("OFF"))
 
 if __name__=='__main__':
     foo = PickAndPlace()
