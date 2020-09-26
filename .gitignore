@@ -7,3 +7,5 @@ lib/
 
 .catkin_workspace
 /src/CMakeLists.txt
+
+*.txt
