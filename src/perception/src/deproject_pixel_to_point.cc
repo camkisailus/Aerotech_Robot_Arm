@@ -12,10 +12,10 @@ class DeprojectPixelToPoint
 {
 	public:
 		DeprojectPixelToPoint(){
-			point_pub_ = nh_.advertise<PointStamped>( "/cameron/center_point", 0 );
+			point_pub_ = nh_.advertise<PointStamped>( "/detections/real_center", 0 );
 			camera_info_sub_ = nh_.subscribe("/camera/aligned_depth_to_color/camera_info", 1000, &DeprojectPixelToPoint::camera_info_callback, this);
 			pixel_sub_ = nh_.subscribe("/camera/detections/bb_center",1000, &DeprojectPixelToPoint::deproject_callback, this);
-			nh_.getParam("/PixelToPointNode/camera_height", camera_height);
+			//nh_.getParam("/PixelToPointNode/camera_height", camera_height);
 		}
 
 		void camera_info_callback(const CameraInfoConstPtr& camera_info){
@@ -61,7 +61,7 @@ class DeprojectPixelToPoint
 		ros::Subscriber pixel_sub_;
 		ros::Subscriber camera_info_sub_;
 		std::unordered_map<std::string, double> cam_info;
-		double camera_height;
+		double camera_height = 0.1397;
 };
 
 int main(int argc, char **argv)

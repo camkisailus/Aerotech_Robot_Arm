@@ -64,21 +64,31 @@ public:
 
 	    for( size_t i = 0; i < contours.size(); i++ )
 	    {
-	    	bool publish = true;
+	    	//bool publish = true;
 	    	cv::Point center;
 	    	center.x = boundRect[i].x + boundRect[i].width/2;
 	    	center.y = boundRect[i].y + boundRect[i].height/2;
 	        Scalar color = Scalar(255,0,0);
 	        rectangle( cv_ptr->image, boundRect[i].tl(), boundRect[i].br(), color, 2 );
 	    	circle( cv_ptr->image, center, 5, color);
-	    	for(size_t j = 0; j < published_blobs.size(); j++){
+	    	/*for(size_t j = 0; j < published_blobs.size(); j++){
 	    		auto dist = sqrt(center.x*center.x + center.y*center.y);
 	    		if(abs(dist - published_blobs[j])<25){
 	    			// if the center of the detection is with 25 pixels of any other already detected circle do not publish.
 	    			publish = false;
 	    		}
-	    	}
-	    	if(publish){
+	    	}*/
+	    	geometry_msgs::PointStamped pt_msg;
+    		//'{stamp: now, frame_id: base_link}' '[320.0, 360.0, 0.0]'
+    		pt_msg.header.stamp = ros::Time::now();
+    		pt_msg.header.frame_id = "camera_link";
+    		geometry_msgs::Point pt;
+    		pt.x = center.x;
+    		pt.y = center.y;
+    		pt.z = 0;
+    		pt_msg.point = pt;
+    		pixel_detection_pub_.publish(pt_msg);
+	    	/*if(publish){
 	    		published_blobs.push_back(sqrt(center.x*center.x + center.y*center.y));
 	    		geometry_msgs::PointStamped pt_msg;
 	    		//'{stamp: now, frame_id: base_link}' '[320.0, 360.0, 0.0]'
@@ -90,7 +100,7 @@ public:
 	    		pt.z = 0;
 	    		pt_msg.point = pt;
 	    		pixel_detection_pub_.publish(pt_msg);
-	    	}
+	    	}*/
 	    }
 
 	    // Publish img_msg
