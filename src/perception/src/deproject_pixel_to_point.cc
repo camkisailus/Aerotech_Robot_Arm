@@ -1,5 +1,6 @@
 #include "ros/ros.h"
 
+#include <tf/transform_listener.h>
 #include <sensor_msgs/CameraInfo.h>
 #include "geometry_msgs/PointStamped.h"
 
@@ -14,8 +15,8 @@ class DeprojectPixelToPoint
 		DeprojectPixelToPoint(){
 			point_pub_ = nh_.advertise<PointStamped>( "/detections/real_center", 0 );
 			camera_info_sub_ = nh_.subscribe("/camera/aligned_depth_to_color/camera_info", 1000, &DeprojectPixelToPoint::camera_info_callback, this);
-			pixel_sub_ = nh_.subscribe("/camera/detections/bb_center",1000, &DeprojectPixelToPoint::deproject_callback, this);
-			//nh_.getParam("/PixelToPointNode/camera_height", camera_height);
+			pixel_sub_ = nh_.subscribe("/camera/blob_detections/bb_center",1000, &DeprojectPixelToPoint::deproject_callback, this);
+			nh_.getParam("/PixelToPointNode/camera_height", camera_height);
 		}
 
 		void camera_info_callback(const CameraInfoConstPtr& camera_info){
@@ -23,36 +24,34 @@ class DeprojectPixelToPoint
 			cam_info["cy"] = camera_info->P[6];
 			cam_info["fx"] = camera_info->P[0];
 			cam_info["fy"] = camera_info->P[5];
-			cam_info["Tx"] = camera_info->P[3];
-			cam_info["Ty"] = camera_info->P[7];
+			// Tx and Ty are 0 and unused
+			//cam_info["Tx"] = camera_info->P[3];
+			//cam_info["Ty"] = camera_info->P[7];
+			frame_id = camera_info->header.frame_id;
 		}
 
 		void deproject_callback(const PointStampedConstPtr& pixel_stamped){
-		    Point pixel = pixel_stamped->point;
-		    auto px = pixel.x;
-		    auto py = pixel.y;
-
-		    auto cx = cam_info["cx"];
-		    auto cy = cam_info["cy"];
-		    auto fx = cam_info["fx"];
-		    auto fy = cam_info["fy"];
-		    auto Tx = cam_info["Tx"];
-		    auto Ty = cam_info["Ty"];
-
-		    //auto Z = 0.001*depth_ptr->image.at<u_int16_t>(px, py); // Meters
-
-		    auto X = (px*camera_height - cx*camera_height) / fx; // Meters
-		    auto Y = (py*camera_height - cy*camera_height) / fy; // Meters
-
-		    PointStamped pt_msg;
+		    PointStamped pt_msg, pt_msg_transformed;
 		    Point pt;
-		    pt.x = X;
-		    pt.y = Y;
+		    pt.x = (pixel_stamped->point.x*camera_height - cam_info["cx"]*camera_height) / cam_info["fx"];
+		    pt.y = (pixel_stamped->point.y*camera_height - cam_info["cy"]*camera_height) / cam_info["fy"];
 		    pt.z = camera_height;
 		    pt_msg.header.stamp = ros::Time::now();
-		    pt_msg.header.frame_id = "camera_link";
+		    pt_msg.header.frame_id = "camera_color_optical_frame";
 		    pt_msg.point = pt;
-		    point_pub_.publish(pt_msg);
+		    // Transform from camera_color_optical_frame to camera_link
+		    ROS_INFO("camera_link: %s", camera_link);
+		    ROS_INFO("pt_msg frame: %s", pt_msg.header.frame_id);
+		    listener.transformPoint(camera_link, pt_msg, pt_msg_transformed);
+		    // For some reason these get messed up in the transform.. Fix them here
+		    auto z = pt_msg_transformed.point.z;
+		    auto y = pt_msg_transformed.point.y;
+		    auto x = pt_msg_transformed.point.x;
+		    pt_msg_transformed.point.z = x;
+		    pt_msg_transformed.point.y = z;
+		    pt_msg_transformed.point.x = y;
+		    
+		    point_pub_.publish(pt_msg_transformed);
 		}
 
 	private:
@@ -61,7 +60,10 @@ class DeprojectPixelToPoint
 		ros::Subscriber pixel_sub_;
 		ros::Subscriber camera_info_sub_;
 		std::unordered_map<std::string, double> cam_info;
-		double camera_height = 0.1397;
+		std::string frame_id;
+		std::string camera_link = "camera_link";
+		double camera_height;
+		tf::TransformListener listener;
 };
 
 int main(int argc, char **argv)

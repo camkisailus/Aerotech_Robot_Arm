@@ -20,8 +20,8 @@ using namespace std;
 class BlobDetector{
 public:
 	BlobDetector(){
-		detection_pub_ = nh_.advertise<Image>("/camera/detections/image_raw", 0);
-		pixel_detection_pub_ = nh_.advertise<geometry_msgs::PointStamped>("/camera/detections/bb_center",0);
+		detection_pub_ = nh_.advertise<Image>("/camera/blob_detections/image_raw", 0);
+		pixel_detection_pub_ = nh_.advertise<geometry_msgs::PointStamped>("/camera/blob_detections/bb_center",0);
 		image_sub_ = nh_.subscribe("/camera/color/image_raw", 1000, &BlobDetector::callback, this);
 
 	}
@@ -53,45 +53,37 @@ public:
 
 		// Draw contours
 		vector<vector<cv::Point> > contours_poly( contours.size() );
-		vector<Rect> boundRect( contours.size() );
+		vector<Rect> bb_circles;
 		for( size_t i = 0; i < contours.size(); i++ )
 	    {
 	        // Contours are stored as vector of points, this finds the polygonal shape of those points
 	        approxPolyDP( contours[i], contours_poly[i], 3, true );
-	        // Get the bounding rectangle of this ^ polygon
-	        boundRect[i] = boundingRect( contours_poly[i] );
+	        auto area = contourArea(contours[i]);
+	        if((contours_poly[i].size() > 15) && (area >30) ){
+	        	// Get the bounding rectangle of this ^ polygon
+	        	bb_circles.push_back(boundingRect( contours_poly[i] ));
+	        }
 	    }
 
-	    for( size_t i = 0; i < contours.size(); i++ )
+	    for( size_t i = 0; i < bb_circles.size(); i++ )
 	    {
-	    	//bool publish = true;
+	    	bool publish = true;
 	    	cv::Point center;
-	    	center.x = boundRect[i].x + boundRect[i].width/2;
-	    	center.y = boundRect[i].y + boundRect[i].height/2;
-	        Scalar color = Scalar(255,0,0);
-	        rectangle( cv_ptr->image, boundRect[i].tl(), boundRect[i].br(), color, 2 );
-	    	circle( cv_ptr->image, center, 5, color);
-	    	/*for(size_t j = 0; j < published_blobs.size(); j++){
+	    	center.x = bb_circles[i].x + bb_circles[i].width/2;
+	    	center.y = bb_circles[i].y + bb_circles[i].height/2;
+	    	for(size_t j = 0; j < published_blobs.size(); j++){
 	    		auto dist = sqrt(center.x*center.x + center.y*center.y);
-	    		if(abs(dist - published_blobs[j])<25){
-	    			// if the center of the detection is with 25 pixels of any other already detected circle do not publish.
+	    		if(abs(dist - published_blobs[j])<100){
+	    			// if the center of the detection is with 100 pixels of any other already detected circle do not publish.
 	    			publish = false;
 	    		}
-	    	}*/
-	    	geometry_msgs::PointStamped pt_msg;
-    		//'{stamp: now, frame_id: base_link}' '[320.0, 360.0, 0.0]'
-    		pt_msg.header.stamp = ros::Time::now();
-    		pt_msg.header.frame_id = "camera_link";
-    		geometry_msgs::Point pt;
-    		pt.x = center.x;
-    		pt.y = center.y;
-    		pt.z = 0;
-    		pt_msg.point = pt;
-    		pixel_detection_pub_.publish(pt_msg);
-	    	/*if(publish){
+	    	}
+	    	if(publish){
+	    		Scalar color = Scalar(0, 0, 255);
+		        rectangle( cv_ptr->image, bb_circles[i].tl(), bb_circles[i].br(), color, 2 );
+		    	circle( cv_ptr->image, center, 5, color);
 	    		published_blobs.push_back(sqrt(center.x*center.x + center.y*center.y));
 	    		geometry_msgs::PointStamped pt_msg;
-	    		//'{stamp: now, frame_id: base_link}' '[320.0, 360.0, 0.0]'
 	    		pt_msg.header.stamp = ros::Time::now();
 	    		pt_msg.header.frame_id = "camera_link";
 	    		geometry_msgs::Point pt;
@@ -100,7 +92,12 @@ public:
 	    		pt.z = 0;
 	    		pt_msg.point = pt;
 	    		pixel_detection_pub_.publish(pt_msg);
-	    	}*/
+	    	}else{
+	    		Scalar color = Scalar(0,255,0);
+	        	rectangle( cv_ptr->image, bb_circles[i].tl(), bb_circles[i].br(), color, 2 );
+	    		circle( cv_ptr->image, center, 5, color);
+	    	}
+	    	
 	    }
 
 	    // Publish img_msg
@@ -126,7 +123,7 @@ private:
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "blob_dector");
+    ros::init(argc, argv, "blob_detector");
 
     BlobDetector foo;
 

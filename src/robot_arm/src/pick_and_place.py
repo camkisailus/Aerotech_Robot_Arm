@@ -16,17 +16,17 @@ class PickAndPlace:
         self.target.x = 0.2
         self.target.y = 0.2
         self.target.z = 0.2
+        self.arm.go_to_home_pose()
 
     def callback(self,msg):
-        # Wake up
-        self.arm.go_to_home_pose()
+        custom_guess = [-1.1382137537002563, 0.8574953079223633, -0.12732040882110596, 0.9311263561248779, -0.04908738657832146]
 
         # Move to passed point
         pt = msg.point
-        self.arm.set_ee_pose_components(x=pt.x, y=pt.y, z=0.0762)
+        self.arm.set_ee_pose_components(x=0.1524, y=-0.381, z=0.0875, custom_guess=custom_guess)
+        #self.arm.set_ee_pose_components(x=pt.x, y=pt.y, z=0.0875, custom_guess=custom_guess)
         self.turn_on_vacuum()
         time.sleep(2.0)
-        self.arm.go_to_home_pose()
 
         # Move to target
         self.arm.set_ee_pose_components(x=self.target.x, y=self.target.y, z=self.target.z)
@@ -36,7 +36,6 @@ class PickAndPlace:
 
         # Sleep
         self.arm.go_to_home_pose()
-        self.arm.go_to_sleep_pose()
 
 
     def turn_on_vacuum(self):

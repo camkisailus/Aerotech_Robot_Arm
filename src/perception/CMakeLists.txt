@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   image_transport
   roscpp
   sensor_msgs
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -143,6 +144,13 @@ target_link_libraries(blob_detector ${catkin_LIBRARIES})
 
 add_executable(deproject_pixel_to_point src/deproject_pixel_to_point.cc)
 target_link_libraries(deproject_pixel_to_point ${catkin_LIBRARIES})
+
+
+add_executable(circle_detector src/circle_detector.cc)
+target_link_libraries(circle_detector ${catkin_LIBRARIES})
+
+add_executable(pcl_detector src/pcl_detector.cc)
+target_link_libraries(pcl_detector ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
