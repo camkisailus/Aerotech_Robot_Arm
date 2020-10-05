@@ -6,47 +6,81 @@ from interbotix_descriptions import interbotix_mr_descriptions as mrd
 from geometry_msgs.msg import PointStamped, Point
 from std_msgs.msg import String
 
+
 class PickAndPlace:
     def __init__(self):
-        self.arm = InterbotixRobot(robot_name="rx150", mrd=mrd)
-        self.arm.set_gripper_pressure(2)
-        self.pt_sub = rospy.Subscriber('/detections/real_center_base_link', PointStamped, self.callback, queue_size=1)
-        self.relay_pub = rospy.Publisher('/vacuum', String, queue_size = 1)
+        self.arm = InterbotixRobot(robot_name="rx150", mrd=mrd, gripper_pressue=1)
+        self.pt_sub = rospy.Subscriber(
+            '/detections/real_center_base_link',
+            PointStamped,
+            self.callback,
+            queue_size=1)
+        self.relay_pub = rospy.Publisher('/vacuum', String, queue_size=1)
+        self.request_detection_pub = rospy.Publisher('/robot/get_new_point', String, queue_size=1)
         self.target = Point()
         self.target.x = 0.2
         self.target.y = 0.2
         self.target.z = 0.2
         self.arm.go_to_home_pose()
 
-    def callback(self,msg):
-        custom_guess = [-1.1382137537002563, 0.8574953079223633, -0.12732040882110596, 0.9311263561248779, -0.04908738657832146]
+    def request_detection(self):
+        self.request_detection_pub.publish("foo")
 
-        # Move to passed point
+
+    def move_to_point(self, pt):
+        """
+            Abstract the set_ee_pose_compenent method to clean up callback. 
+
+            Args:
+                pt (Point) -- desired end effector point
+        """
+        # List of hard coded positions that the IKSolver will use as seeds to better solve the planning problem
+        custom_guesses = [
+            [-0.012271846644580364, 0.7470486760139465, -0.26691266894340515, 0.6181942820549011, 0.08897088468074799],
+            [-0.6181942820549011, 1.0047574043273926, 0.4218447208404541, 0.11044661700725555, 0.0920388475060463],
+            [-1.121340036392212, 0.8620972037315369, -0.04601942375302315, 0.7900001406669617, 0.006135923322290182],
+            [-1.7794177532196045, 0.5292233824729919, -0.503145694732666, 0.9526020884513855, -0.00920388475060463]
+        ]
+        for guess in custom_guesses:
+            _, res = self.arm.set_ee_pose_components(x=pt.x, y=pt.y, z=0.1, custom_guess=guess)
+            if(res):
+                # Planning problem solved
+                break
+
+
+    def callback(self, msg):
+        """
+            Main callback that moves the robot to the detected point, turns on the vacuum, moves to target
+            and then turns off the vacuum and returns home
+        """       
         pt = msg.point
-        self.arm.set_ee_pose_components(x=0.1524, y=-0.381, z=0.0875, custom_guess=custom_guess)
-        #self.arm.set_ee_pose_components(x=pt.x, y=pt.y, z=0.0875, custom_guess=custom_guess)
+        # Hard code the z value so the vacuum head is appropriately placed above the lens
+        pt.z = 0.1
+        
+        self.move_to_point(pt)
         self.turn_on_vacuum()
         time.sleep(2.0)
 
         # Move to target
-        self.arm.set_ee_pose_components(x=self.target.x, y=self.target.y, z=self.target.z)
-        time.sleep(3.0)
+        self.move_to_point(target)
+        time.sleep(1.0)
         self.turn_off_vacuum()
         time.sleep(1.0)
 
-        # Sleep
+        # Home
         self.arm.go_to_home_pose()
-
 
     def turn_on_vacuum(self):
         self.relay_pub.publish(String("ON"))
-        
 
     def turn_off_vacuum(self):
         self.relay_pub.publish(String("OFF"))
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     foo = PickAndPlace()
+    time.sleep(5)
     rate = rospy.Rate(10)
     while not rospy.is_shutdown():
+        foo.request_detection()
         rate.sleep()

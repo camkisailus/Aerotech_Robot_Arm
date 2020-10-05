@@ -3,12 +3,15 @@
 #include "sensor_msgs/Image.h"
 #include "sensor_msgs/image_encodings.h"
 #include "geometry_msgs/PointStamped.h"
+#include "std_msgs/String.h"
 
 #include <cv_bridge/cv_bridge.h>
 
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/opencv.hpp>
+
+#include <mutex>
 
 #include <vector>
 #include <cmath>
@@ -17,21 +20,36 @@ using namespace sensor_msgs;
 using namespace cv;
 using namespace std;
 
+std::mutex frame_lock;
+
 class BlobDetector{
 public:
 	BlobDetector(){
 		detection_pub_ = nh_.advertise<Image>("/camera/blob_detections/image_raw", 0);
 		pixel_detection_pub_ = nh_.advertise<geometry_msgs::PointStamped>("/camera/blob_detections/bb_center",0);
-		image_sub_ = nh_.subscribe("/camera/color/image_raw", 1000, &BlobDetector::callback, this);
+		image_sub_ = nh_.subscribe("/camera/color/image_raw", 1000, &BlobDetector::camera_callback, this);
+		detect_sub_ = nh_.subscribe("/robot/get_new_point", 1000, &BlobDetector::pub_callback, this);
 
 	}
 
-	void callback(const Image::Ptr& img){
+	void pub_callback(const std_msgs::String& msg){
+		detect();		
+	}
+
+	void camera_callback(const Image::Ptr& img){
+		frame_lock.lock();
+		latest_frame = *img;
+		frame_lock.unlock();
+	}
+
+	void detect(void){
+		frame_lock.lock();
 		cv_bridge::CvImagePtr cv_ptr;
 		try{
-			cv_ptr = cv_bridge::toCvCopy(img, image_encodings::BGR8);
+			cv_ptr = cv_bridge::toCvCopy(latest_frame, image_encodings::BGR8);
 		}catch(cv_bridge::Exception& e){
 			ROS_ERROR("cv_bridge exception: %s", e.what());
+			frame_lock.unlock();
 		}
 
 		// Mess with image
@@ -82,10 +100,12 @@ public:
 	    		Scalar color = Scalar(0, 0, 255);
 		        rectangle( cv_ptr->image, bb_circles[i].tl(), bb_circles[i].br(), color, 2 );
 		    	circle( cv_ptr->image, center, 5, color);
-	    		published_blobs.push_back(sqrt(center.x*center.x + center.y*center.y));
+
+		    	published_blobs.push_back(center.x*center.x + center.y*center.y);
+		    	
 	    		geometry_msgs::PointStamped pt_msg;
 	    		pt_msg.header.stamp = ros::Time::now();
-	    		pt_msg.header.frame_id = "camera_link";
+	    		pt_msg.header.frame_id = "camera_color_optical_frame";
 	    		geometry_msgs::Point pt;
 	    		pt.x = center.x;
 	    		pt.y = center.y;
@@ -96,10 +116,8 @@ public:
 	    		Scalar color = Scalar(0,255,0);
 	        	rectangle( cv_ptr->image, bb_circles[i].tl(), bb_circles[i].br(), color, 2 );
 	    		circle( cv_ptr->image, center, 5, color);
-	    	}
-	    	
+	    	}	
 	    }
-
 	    // Publish img_msg
 		cv_bridge::CvImage frame;
 		frame.header = cv_ptr->header;
@@ -109,6 +127,7 @@ public:
 		frame.encoding = image_encodings::BGR8;
 		frame.image = cv_ptr->image;
 		detection_pub_.publish(frame.toImageMsg());
+		frame_lock.unlock();
 
 	}
 
@@ -118,7 +137,9 @@ private:
 	ros::Publisher detection_pub_;
 	ros::Publisher pixel_detection_pub_;
 	ros::Subscriber image_sub_;
+	ros::Subscriber detect_sub_;
 	std::vector<double> published_blobs;
+	Image latest_frame;
 };
 
 int main(int argc, char **argv)

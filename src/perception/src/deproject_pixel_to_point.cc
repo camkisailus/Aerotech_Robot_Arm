@@ -40,8 +40,6 @@ class DeprojectPixelToPoint
 		    pt_msg.header.frame_id = "camera_color_optical_frame";
 		    pt_msg.point = pt;
 		    // Transform from camera_color_optical_frame to camera_link
-		    ROS_INFO("camera_link: %s", camera_link);
-		    ROS_INFO("pt_msg frame: %s", pt_msg.header.frame_id);
 		    listener.transformPoint(camera_link, pt_msg, pt_msg_transformed);
 		    // For some reason these get messed up in the transform.. Fix them here
 		    auto z = pt_msg_transformed.point.z;
