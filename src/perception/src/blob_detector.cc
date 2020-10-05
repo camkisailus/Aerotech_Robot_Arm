@@ -112,6 +112,8 @@ public:
 	    		pt.z = 0;
 	    		pt_msg.point = pt;
 	    		pixel_detection_pub_.publish(pt_msg);
+	    		// Only publish one at a time
+	    		return;
 	    	}else{
 	    		Scalar color = Scalar(0,255,0);
 	        	rectangle( cv_ptr->image, bb_circles[i].tl(), bb_circles[i].br(), color, 2 );
