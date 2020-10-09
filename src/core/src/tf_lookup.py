@@ -8,7 +8,7 @@ class TfTransform():
     def __init__(self):
         self.tf = tf.TransformListener()
         self.point_sub = rospy.Subscriber('/detections/real_center', PointStamped, self.callback, queue_size=1)
-        self.point_pub = rospy.Publisher('/detections/real_center_base_link', PointStamped, queue_size=10)
+        self.point_pub = rospy.Publisher('/detections/real_center_base_link', PointStamped, queue_size=1)
 
     def callback(self, msg):
         # Transform passed point from /camera_link to rx150/base_link

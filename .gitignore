@@ -7,5 +7,14 @@ lib/
 
 .catkin_workspace
 /src/CMakeLists.txt
-
+/src/perception/src/circle_detector.cc
+/src/perception/src/pcl_detector.cc
+/src/robot_arm/src/close_gripper.py
+/src/robot_arm/src/fake_path.py
+/src/robot_arm/src/go_home.py
+/src/robot_arm/src/go_point.py
+/src/robot_arm/src/go_sleep.py
+/src/robot_arm/src/guesses.txt
+/src/robot_arm/src/open_gripper.py
+/src/robot_arm/src/pub_fake_path.py
 *.txt

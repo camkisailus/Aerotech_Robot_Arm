@@ -25,8 +25,8 @@ std::mutex frame_lock;
 class BlobDetector{
 public:
 	BlobDetector(){
-		detection_pub_ = nh_.advertise<Image>("/camera/blob_detections/image_raw", 0);
-		pixel_detection_pub_ = nh_.advertise<geometry_msgs::PointStamped>("/camera/blob_detections/bb_center",0);
+		detection_pub_ = nh_.advertise<Image>("/blob_detector/image_raw", 0);
+		pixel_detection_pub_ = nh_.advertise<geometry_msgs::PointStamped>("/blob_detector/bb_center",0);
 		image_sub_ = nh_.subscribe("/camera/color/image_raw", 1000, &BlobDetector::camera_callback, this);
 		detect_sub_ = nh_.subscribe("/robot/get_new_point", 1000, &BlobDetector::pub_callback, this);
 
@@ -77,7 +77,7 @@ public:
 	        // Contours are stored as vector of points, this finds the polygonal shape of those points
 	        approxPolyDP( contours[i], contours_poly[i], 3, true );
 	        auto area = contourArea(contours[i]);
-	        if((contours_poly[i].size() > 15) && (area >30) ){
+	        if((contours_poly[i].size() > 8) && (area > 15) ){
 	        	// Get the bounding rectangle of this ^ polygon
 	        	bb_circles.push_back(boundingRect( contours_poly[i] ));
 	        }
@@ -101,7 +101,7 @@ public:
 		        rectangle( cv_ptr->image, bb_circles[i].tl(), bb_circles[i].br(), color, 2 );
 		    	circle( cv_ptr->image, center, 5, color);
 
-		    	published_blobs.push_back(center.x*center.x + center.y*center.y);
+		    	published_blobs.push_back(sqrt(center.x*center.x + center.y*center.y));
 		    	
 	    		geometry_msgs::PointStamped pt_msg;
 	    		pt_msg.header.stamp = ros::Time::now();
@@ -112,23 +112,21 @@ public:
 	    		pt.z = 0;
 	    		pt_msg.point = pt;
 	    		pixel_detection_pub_.publish(pt_msg);
+	    		// Publish img_msg
+				cv_bridge::CvImage frame;
+				frame.header = cv_ptr->header;
+				//Encoding for thresh image
+				//frame.encoding = image_encodings::TYPE_8UC1;
+				//Encoding for cv_ptr->image
+				frame.encoding = image_encodings::BGR8;
+				frame.image = cv_ptr->image;
+				detection_pub_.publish(frame.toImageMsg());
+				frame_lock.unlock();
 	    		// Only publish one at a time
 	    		return;
-	    	}else{
-	    		Scalar color = Scalar(0,255,0);
-	        	rectangle( cv_ptr->image, bb_circles[i].tl(), bb_circles[i].br(), color, 2 );
-	    		circle( cv_ptr->image, center, 5, color);
 	    	}	
 	    }
-	    // Publish img_msg
-		cv_bridge::CvImage frame;
-		frame.header = cv_ptr->header;
-		//Encoding for thresh image
-		//frame.encoding = image_encodings::TYPE_8UC1;
-		//Encoding for cv_ptr->image
-		frame.encoding = image_encodings::BGR8;
-		frame.image = cv_ptr->image;
-		detection_pub_.publish(frame.toImageMsg());
+	    
 		frame_lock.unlock();
 
 	}

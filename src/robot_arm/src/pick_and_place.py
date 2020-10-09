@@ -9,7 +9,7 @@ from std_msgs.msg import String
 
 class PickAndPlace:
     def __init__(self):
-        self.arm = InterbotixRobot(robot_name="rx150", mrd=mrd, gripper_pressue=1)
+        self.arm = InterbotixRobot(robot_name="rx150", mrd=mrd, gripper_pressure=1)
         self.pt_sub = rospy.Subscriber(
             '/detections/real_center_base_link',
             PointStamped,
@@ -20,8 +20,9 @@ class PickAndPlace:
         self.target = Point()
         self.target.x = 0.2
         self.target.y = 0.2
-        self.target.z = 0.2
+        self.target.z = 0.25
         self.arm.go_to_home_pose()
+        self.detect_mode = True
 
     def request_detection(self):
         self.request_detection_pub.publish("foo")
@@ -52,35 +53,40 @@ class PickAndPlace:
         """
             Main callback that moves the robot to the detected point, turns on the vacuum, moves to target
             and then turns off the vacuum and returns home
-        """       
+        """ 
+        self.detect_mode = False      
         pt = msg.point
         # Hard code the z value so the vacuum head is appropriately placed above the lens
         pt.z = 0.1
-        
         self.move_to_point(pt)
         self.turn_on_vacuum()
         time.sleep(2.0)
 
         # Move to target
-        self.move_to_point(target)
+        self.move_to_point(self.target)
         time.sleep(1.0)
         self.turn_off_vacuum()
         time.sleep(1.0)
 
         # Home
         self.arm.go_to_home_pose()
-
+        self.detect_mode = True
+    
     def turn_on_vacuum(self):
         self.relay_pub.publish(String("ON"))
 
     def turn_off_vacuum(self):
         self.relay_pub.publish(String("OFF"))
+    
+    def run(self):
+        if(self.detect_mode):
+            self.request_detection()
 
 
 if __name__ == '__main__':
     foo = PickAndPlace()
     time.sleep(5)
-    rate = rospy.Rate(10)
+    rate = rospy.Rate(1)
     while not rospy.is_shutdown():
-        foo.request_detection()
+        foo.run()
         rate.sleep()
