@@ -5,7 +5,7 @@ This repository serves as the software portion for my capstone engineering proje
 I will now describe in depth how each of the nodes in our project work.
 
 1) Blob Detection
-> afjdajf
+>> afjdajf
 2) Pixel Deprojection
 
 3) Point Transformation
