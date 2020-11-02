@@ -1,8 +1,8 @@
 <launch>
-	<node pkg="perception" type="blob_detector" name="BlobDetectionNode"/>
+	<!--<node pkg="perception" type="blob_detector" name="BlobDetectionNode"/>-->
     <node pkg="perception" type="deproject_pixel_to_point" name="PixelToPointNode">
 		<param name="camera_height" type="double" value="0.22225"/>
 	</node>
-
+    <!--<node pkg="perception" type="nn_detector.py" name="nn_detector"/>-->
 
 </launch>

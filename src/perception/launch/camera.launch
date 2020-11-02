@@ -1,20 +1,7 @@
 <launch>
-	<include file="$(find realsense2_camera)/launch/rs_camera.launch">
+	<include file="$(find realsense2_camera)/launch/rs_rgbd.launch">
 		<arg name="align_depth" value="true"/>
-		<arg name="linear_accel_cov" value="1.0"/>
-		<arg name="enable_gyro" value="true"/>
-		<arg name="enable_accel" value="true"/>
-		<arg name="unite_imu_method" value="linear_interpolation"/>
-	</include>
-    
+    </include> 
     <param name="robot_description" command="$(find xacro)/xacro '$(find realsense2_description)/urdf/test_d435_camera.urdf.xacro' use_nominal_extrinsics:=false add_plug:=false"/>
 
-
-	<node pkg="imu_filter_madgwick" type="imu_filter_node" name="ImuFilter">
-		<param name="use_mag" type="bool" value="false" />
-        <param name="_publish_tf" type="bool" value="false" />
-        <param name="_world_frame" type="string" value="enu" />
-        <param name="fixed_frame" type="string" value="camera_link"/>
-        <remap from="/imu/data_raw" to="/camera/imu"/>
-	</node>
 </launch>

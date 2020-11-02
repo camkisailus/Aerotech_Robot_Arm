@@ -15,7 +15,7 @@ class DeprojectPixelToPoint
 		DeprojectPixelToPoint(){
 			point_pub_ = nh_.advertise<PointStamped>( "/detections/real_center", 0 );
 			camera_info_sub_ = nh_.subscribe("/camera/aligned_depth_to_color/camera_info", 1000, &DeprojectPixelToPoint::camera_info_callback, this);
-			pixel_sub_ = nh_.subscribe("/blob_detector/bb_center",1000, &DeprojectPixelToPoint::deproject_callback, this);
+			pixel_sub_ = nh_.subscribe("/detector/bb_center",1000, &DeprojectPixelToPoint::deproject_callback, this);
 			nh_.getParam("/PixelToPointNode/camera_height", camera_height);
 		}
 

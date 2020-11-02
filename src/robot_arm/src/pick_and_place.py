@@ -18,9 +18,9 @@ class PickAndPlace:
         self.relay_pub = rospy.Publisher('/vacuum', String, queue_size=1)
         self.request_detection_pub = rospy.Publisher('/robot/get_new_point', String, queue_size=1)
         self.target = Point()
-        self.target.x = 0.2
-        self.target.y = 0.2
-        self.target.z = 0.25
+        self.target.x = 0.3048
+        self.target.y = 0.0
+        self.target.z = 0.063
         self.arm.go_to_home_pose()
         self.detect_mode = True
 
@@ -43,10 +43,12 @@ class PickAndPlace:
             [-1.7794177532196045, 0.5292233824729919, -0.503145694732666, 0.9526020884513855, -0.00920388475060463]
         ]
         for guess in custom_guesses:
-            _, res = self.arm.set_ee_pose_components(x=pt.x, y=pt.y, z=0.1, custom_guess=guess)
+            _, res = self.arm.set_ee_pose_components(x=pt.x, y=pt.y, z=pt.z, custom_guess=guess)
             if(res):
                 # Planning problem solved
-                break
+                return True
+        
+        return False
 
 
     def callback(self, msg):
@@ -57,16 +59,24 @@ class PickAndPlace:
         self.detect_mode = False      
         pt = msg.point
         # Hard code the z value so the vacuum head is appropriately placed above the lens
-        pt.z = 0.1
+        pt.z = 0.13
+        self.move_to_point(pt)
+        pt.z = 0.067
         self.move_to_point(pt)
         self.turn_on_vacuum()
         time.sleep(2.0)
-
+        pt.z = 0.15
+        self.move_to_point(pt)
+        self.arm.go_to_home_pose()
         # Move to target
         self.move_to_point(self.target)
+        pt.x = self.target.x
+        pt.y = self.target.y
+        pt.z = 0.13
         time.sleep(1.0)
         self.turn_off_vacuum()
         time.sleep(1.0)
+        self.move_to_point(pt)
 
         # Home
         self.arm.go_to_home_pose()

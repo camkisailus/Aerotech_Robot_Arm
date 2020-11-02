@@ -25,8 +25,8 @@ std::mutex frame_lock;
 class BlobDetector{
 public:
 	BlobDetector(){
-		detection_pub_ = nh_.advertise<Image>("/blob_detector/image_raw", 0);
-		pixel_detection_pub_ = nh_.advertise<geometry_msgs::PointStamped>("/blob_detector/bb_center",0);
+		detection_pub_ = nh_.advertise<Image>("/detector/image_raw", 0);
+		pixel_detection_pub_ = nh_.advertise<geometry_msgs::PointStamped>("/detector/bb_center",0);
 		image_sub_ = nh_.subscribe("/camera/color/image_raw", 1000, &BlobDetector::camera_callback, this);
 		detect_sub_ = nh_.subscribe("/robot/get_new_point", 1000, &BlobDetector::pub_callback, this);
 
@@ -93,7 +93,7 @@ public:
 	    		auto dist = sqrt(center.x*center.x + center.y*center.y);
 	    		if(abs(dist - published_blobs[j])<100){
 	    			// if the center of the detection is with 100 pixels of any other already detected circle do not publish.
-	    			publish = false;
+	    			publish = true;
 	    		}
 	    	}
 	    	if(publish){
