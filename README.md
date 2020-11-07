@@ -12,3 +12,10 @@ I will now describe in depth how each of the nodes in our project work.
 
 4) Pick & Place
 
+# Deploy
+1. Run `./deploy/setup_host_udev.sh` on the host machine
+2. Run `./deploy/deploy.sh` to build and run the container
+3. In the container shell, run `./robot_run.sh`
+
+Watch for errors like can't find device and fix ports in launchfiles accordingly
+

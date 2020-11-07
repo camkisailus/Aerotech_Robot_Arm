@@ -1,7 +1,7 @@
 #!/bin/bash
 
 source /opt/ros/melodic/setup.bash
-
-cd /ws && catkin_make 
+source /ws/devel/setup.bash
+source /interbotix_ws/devel/setup.bash 
 
 exec $@
