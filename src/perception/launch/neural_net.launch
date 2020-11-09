@@ -1,0 +1,8 @@
+<launch>
+	<node pkg="perception" type="nn_detector.py" name="NueralNetDetector">
+		<param name="labelsPath" type="string" value="$(find perception)/yolov3/yolo.names"/>
+        <param name="weightsPath" type="string" value="$(find perception)/yolov3/yolov3_custom_colab_tiny_final.weights"/>
+        <param name="configPath" type="string" value="$(find perception)/yolov3/yolov3_custom_colab_tiny.cfg"/>
+	</node>
+
+</launch>

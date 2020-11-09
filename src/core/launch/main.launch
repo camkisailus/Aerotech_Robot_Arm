@@ -1,24 +1,21 @@
 <launch>
+	<arg name="use_nn" default="true"/>
 	<master auto="start"/>
- 
+	<!-- 
     <include file="$(find interbotix_sdk)/launch/arm_run.launch">
         <arg name="robot_name" value="rx150"/>
 		<arg name="use_time_based_profile" value="true"/>
         <arg name="gripper_operating_mode" value="pwm"/>
-		<!-- UNCOMMENT THESE LINES FOR ZOOM ZOOM MODE -->
-		<!--<arg name="use_time_based_profile" value="false"/>-->
-		<!--<arg name="arm_profile_velocity" value="0"/>-->
-		<!--<arg name="arm_profile_acceleration" value="0"/>-->
-    </include>
-	
+    </include>-->	
     <include file="$(find perception)/launch/camera.launch"/>
  	
 	<include file="$(find core)/launch/tf_broadcaster.launch"/>
    
     <node pkg="core" type="tf_lookup.py" name="point_transformer_node"/>
-
-	<include file="$(find perception)/launch/perception.launch"/>
-   
+	
+	<include file="$(find perception)/launch/deproject.launch"/>
+    <include if="$(arg use_nn)" file="$(find perception)/launch/neural_net.launch"/>
+	<include unless="$(arg use_nn)" file="$(find perception)/launch/blob_detect.launch"/>
     <node pkg="robot_arm" type="pick_and_place.py" name="robot_move_node"/>
     
     <node pkg="rosserial_python" type="serial_node.py" name="arduino_bridge">
