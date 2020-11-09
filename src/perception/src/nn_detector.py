@@ -11,10 +11,10 @@ import threading
 
 class NN_Detector():
     def __init__(self):
-        self.labelsPath = os.path.join('../yolov3/yolo.names')
+        self.labelsPath = os.path.join(rospy.get_param('~labelsPath'))
         self.LABELS = open(self.labelsPath).read().strip().split('\n')
-        self.weightsPath = os.path.join('../yolov3/yolov3_custom_colab_tiny_final.weights')
-        self.configPath = os.path.join('../yolov3/yolov3_custom_colab_tiny.cfg')
+        self.weightsPath = os.path.join(rospy.get_param('~weightsPath'))
+        self.configPath = os.path.join(rospy.get_param('~configPath'))
         self.net = cv2.dnn.readNetFromDarknet(self.configPath,self.weightsPath)
         self._image_pub = rospy.Publisher("/camera/nn_detections/image_raw", Image, queue_size=1)
         self._point_pub = rospy.Publisher("detector/bb_center", PointStamped, queue_size=1)
