@@ -58,6 +58,8 @@ class PickAndPlace:
         """ 
         self.detect_mode = False      
         pt = msg.point
+        pt.x = round(pt.x, 4)
+        pt.y = round(pt.y, 4)
         # Hard code the z value so the vacuum head is appropriately placed above the lens
         pt.z = 0.13
         self.move_to_point(pt)

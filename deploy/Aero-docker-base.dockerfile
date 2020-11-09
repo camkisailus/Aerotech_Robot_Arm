@@ -26,7 +26,7 @@ RUN apt update && apt install -y ros-melodic-moveit-core \
                                     python3-pip
 
 # install python deps
-RUN pip3 install rospkg catkin_pkg numpy modern_robotics && pip install modern_robotics
+RUN pip3 install rospkg catkin_pkg numpy modern_robotics && pip install modern_robotics && pip install opencv-contrib-python
 
 # install interbotix sdk
 WORKDIR /
@@ -42,5 +42,4 @@ RUN bash -c "source /opt/ros/melodic/setup.bash && \
 	cd /interbotix_ws && \
 	rosdep update && \
 	rosdep install --from-paths src --ignore-src -r -y && \
-	pip install modern_robotics && \
 	catkin_make"

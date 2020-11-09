@@ -71,17 +71,27 @@ class NN_Detector():
             idxs = cv2.dnn.NMSBoxes(boxes, confidences, threshold, 0.1)
             if len(idxs) > 0:
             	publish = True
+            	out_of_range = False
+            	msg = ""
                 for i in idxs.flatten():
                     (x, y) = (boxes[i][0],boxes[i][1])
                     (w,h) = (boxes[i][2], boxes[i][3])
                     centerx = x + (w/2)
                     centery = y + (h/2)
+                    # if(centery < 170 or centerx < 170):
+                    # 	out_of_range = True
+                    # 	publish = False
                     if(publish):
                     	color = (0,255,0)
+                    	msg = "TARGET"
                     else:
-                    	color = (0,0,0)
+                    	if out_of_range:
+                    		color = (0,0,255)
+                    		msg = "OOR"
+                    	else:
+                    		color = (0,0,0)
                     cv2.rectangle(self._image, (x,y), (x+w, y+h), color, 2)
-                    text = "{}".format(self.LABELS[classIDs[i]], confidences[i])
+                    text = "{}({})".format(self.LABELS[classIDs[i]], msg)
                     cv2.putText(self._image, text, (x+15, y-10), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
                     if(publish):
 	                    pt = PointStamped()
