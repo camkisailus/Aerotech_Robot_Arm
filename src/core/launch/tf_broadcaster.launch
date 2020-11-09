@@ -1,4 +1,10 @@
 <launch>
+	<arg name="x_trans"/>
+    <arg name="y_trans"/>
+    <arg name="z_trans"/>
+    <arg name="roll"/>
+    <arg name="pitch"/>
+    <arg name="yaw"/>
 	<!-- args = " x(m) y(m) z(m) roll(rad) pitch(rad) yaw(rad) parent child pub_rate(hz)"-->
-    <node pkg="tf" type="static_transform_publisher" name="camera_to_base_broadcaster" args="0.174 -0.396 0.2150 1.5708 1.5708 3.1415 rx150/base_link camera_link 100" />
+    <node pkg="tf" type="static_transform_publisher" name="camera_to_base_broadcaster" args="$(arg x_trans) $(arg y_trans) $(arg z_trans) $(arg roll) $(arg pitch) $(arg yaw) rx150/base_link camera_link 100" />
 </launch>

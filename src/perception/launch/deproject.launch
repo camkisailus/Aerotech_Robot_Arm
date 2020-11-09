@@ -1,5 +1,6 @@
 <launch>
+	<arg name="camera_height"/>
 	<node pkg="perception" type="deproject_pixel_to_point" name="PixelToPointNode">
-		<param name="camera_height" type="double" value="0.22225"/>
+		<param name="camera_height" value="$(arg camera_height)"/>
 	</node>
 </launch>
