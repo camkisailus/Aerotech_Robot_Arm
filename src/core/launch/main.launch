@@ -2,21 +2,27 @@
 	<arg name="use_nn" default="true"/>
 	<arg name="robot_name" default="rx150"/>
 	<arg name="use_time_based_profile" default="true"/>
-	<arg name="x_trans_m" default="0.174"/>
-	<arg name="y_trans_m" default="-0.396"/>
+	<arg name="x_trans_m" default="0.170"/>
+	<arg name="y_trans_m" default="-0.393"/>
 	<arg name="z_trans_m" default="0.215"/>
 	<arg name="roll_rad" default="1.5708"/>
 	<arg name="pitch_rad" default="1.5708"/>
 	<arg name="yaw_rad" default="3.1415"/>
-	<arg name="arduino_port" default="/dev/ttyACM0"/>
+	<arg name="target_x_m" default="0.305"/>
+	<arg name="target_y_m" default="0.000"/>
+	<arg name="target_z_m" default="0.063"/>
+	<arg name="pickup_z_m" default="0.067"/>
+    <arg name="arduino_port" default="/dev/ttyACM0"/>
 	<arg name="baud_rate" default="57600"/>
 
 	<master auto="start"/>
- 
-    <include file="$(find interbotix_sdk)/launch/arm_run.launch">
-        <arg name="robot_name" value="$(arg robot_name)"/>
-    </include>
-    <include file="$(find perception)/launch/camera.launch"/>
+ 	
+	<include file="$(find robot_arm)/launch/robot.launch">
+		<arg name="robot_name" value="$(arg robot_name)"/>
+		<arg name="use_time_based_profile" value="$(arg use_time_based_profile)"/>
+	</include>
+    
+	<include file="$(find perception)/launch/camera.launch"/>
  	
 	<include file="$(find core)/launch/tf_broadcaster.launch">
 		<arg name="x_trans" value="$(arg x_trans_m)"/>
@@ -32,9 +38,16 @@
 	<include file="$(find perception)/launch/deproject.launch">
 		<arg name="camera_height" value="$(arg z_trans_m)"/>
 	</include>
-    <include if="$(arg use_nn)" file="$(find perception)/launch/neural_net.launch"/>
+    
+	<include if="$(arg use_nn)" file="$(find perception)/launch/neural_net.launch"/>
 	<include unless="$(arg use_nn)" file="$(find perception)/launch/blob_detect.launch"/>
-    <node pkg="robot_arm" type="pick_and_place.py" name="robot_move_node"/>
+    
+	<node pkg="robot_arm" type="pick_and_place.py" name="robot_move_node">
+		<param name="target_x" value="$(arg target_x_m)"/>
+		<param name="target_y" value="$(arg target_y_m)"/>
+		<param name="target_z" value="$(arg target_z_m)"/>
+		<param name="pickup_z" value="$(arg pickup_z_m)"/>
+	</node>
     
     <node pkg="rosserial_python" type="serial_node.py" name="arduino_bridge">
         <param name="port" value="$(arg arduino_port)"/>

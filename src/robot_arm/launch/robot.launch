@@ -1,0 +1,8 @@
+<launch>
+	<arg name="robot_name"/>
+	<arg name="use_time_based_profile"/>
+	<include file="$(find interbotix_sdk)/launch/arm_run.launch">
+        <arg name="robot_name" value="$(arg robot_name)"/>
+        <arg name="use_time_based_profile" value="$(arg use_time_based_profile)"/>
+    </include>
+</launch>

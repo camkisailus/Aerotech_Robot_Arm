@@ -32,7 +32,6 @@ RUN pip3 install rospkg catkin_pkg numpy modern_robotics && pip install modern_r
 WORKDIR /
 RUN bash -c "source /opt/ros/melodic/setup.bash && \
 	mkdir -p /interbotix_ws/src && \
-    ls && \
 	cd /interbotix_ws && \
 	catkin_make && \
 	cd /interbotix_ws/src && \

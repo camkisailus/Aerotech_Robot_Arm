@@ -31,7 +31,7 @@ class NN_Detector():
             except (CvBridgeError, TypeError) as e:
                 rospy.logerr('Could not convert img msg to cv2. Error: {}'.format(e))
                 return
-        #self.predict('foo')
+        
     def predict(self, msg):
         if self._image is None:
             return
