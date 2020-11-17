@@ -1,4 +1,9 @@
 #!/usr/bin/env python2
+"""
+This code is used to transform points from the camera_link coordinate frame to the rx150/base_link coordinate frame.
+Namely, this takes lenses detected in the camera frame and puts their location in terms of the robot's coordinate frame so we can tell the robot where to send it's end effector
+"""
+
 import rospy
 import tf
 from geometry_msgs.msg import PointStamped

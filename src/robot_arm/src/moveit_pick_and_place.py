@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-
+"""
+This code was purely experimental, but sets a good foundation for implementing obstacle avoidance with the robotic arm. It still needs heavy modifications and testing, but a foundation does exist
+"""
 import sys
 import time
 import rospy

@@ -1,3 +1,7 @@
+/*
+This code deprojects pixels into points in 3D space using basic stereo vision techniques. This is integral in the autonomy stack as it takes pixel detections as an input and outputs points in the camera's coordinate frame.
+*/
+
 #include "ros/ros.h"
 
 #include <tf/transform_listener.h>

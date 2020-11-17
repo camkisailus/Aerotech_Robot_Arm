@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+This code runs the neural network on frames and outputs detections of lenses. 
+"""
 import numpy as np 
 import cv2
 import os

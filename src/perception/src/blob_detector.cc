@@ -1,3 +1,8 @@
+/*
+This is a simple blob detection algorithm. It subscribes to camera frames and find blobs of white pixels. The center of each blob is published on /detector/bb_center.
+This is an elementary detection algorithm and we recommend using the neural network instead.
+*/
+
 #include "ros/ros.h"
 
 #include "sensor_msgs/Image.h"

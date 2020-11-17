@@ -1,3 +1,4 @@
+<!-- THIS LAUNCH FILE LAUNCHES ALL NODES NECESSARY TO RUN THE ROBOT AUTONOMOUSLY -->
 <launch>
 	<arg name="use_nn" default="true"/>
 	<arg name="robot_name" default="rx150"/>

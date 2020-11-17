@@ -1,3 +1,4 @@
+<!-- THIS LAUNCH FILE LAUNCHES THE TRANSFORM FROM CAMERA_LINK TO RX150/BASE_LINK SO THE DETECTED LENSES CAN BE TRANSFORMED -->
 <launch>
 	<arg name="x_trans"/>
     <arg name="y_trans"/>

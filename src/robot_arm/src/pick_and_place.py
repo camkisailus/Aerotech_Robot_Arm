@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""
+This code controls the entire robot arm's autonomous control. The code is pretty well commented and easy to follow. In essence, the robot calls upon the neural network to run detections by publishing on `/robot/get_new_point/`, this returns a PointStamped msg on `/detections/real_center_base_link` which is a 3D point in robot's coord. frame. The robot moves to this point, turns on the vacuum, moves to the target, turns off the vacuum, and returns the the home position
+"""
 import rospy
 import time
 from interbotix_sdk.robot_manipulation import InterbotixRobot
@@ -22,7 +25,6 @@ class PickAndPlace:
         self.target.y = rospy.get_param("~target_y")
         self.target.z = rospy.get_param("~target_z")
         self.pickup_z = rospy.get_param("~pickup_z")
-        self.arm.go_to_home_pose()
         self.detect_mode = True
 
     def request_detection(self):
@@ -58,6 +60,7 @@ class PickAndPlace:
             and then turns off the vacuum and returns home
         """ 
         self.detect_mode = False      
+        self.robot.go_to_home_pose()
         pt = msg.point
         # Hard code the z value so the vacuum head is appropriately placed above the lens
         pt.z = 0.13
@@ -81,7 +84,8 @@ class PickAndPlace:
 
         # Home
         self.arm.go_to_home_pose()
-        self.detect_mode = True
+        self.arm.go_to_sleep_pose()
+	self.detect_mode = True
     
     def turn_on_vacuum(self):
         self.relay_pub.publish(String("ON"))
