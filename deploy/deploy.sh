@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# find build context
-deploy_dir=$(dirname $0)
-build_context=$(dirname $deploy_dir)
+# cd to build context
+pushd $(dirname $BASH_SOURCE) > /dev/null
+cd ..
 
 # build base image
-docker build -f $deploy_dir/Aero-docker-base.dockerfile -t aero-docker-base $build_context
+docker build -f deploy/Aero-docker-base.dockerfile -t aero-docker-base .
 base_build_status="$?"
 
 # build stack
-docker build -f $deploy_dir/Dockerfile -t aero_test $build_context
+docker build -f deploy/Dockerfile -t aero_test .
 stack_build_status="$?"
 
 # if successful, run the container - else print what failed
