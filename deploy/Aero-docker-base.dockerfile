@@ -1,7 +1,7 @@
 FROM ros:melodic-robot
 
 # install rosdeps
-RUN apt update && apt install -y ros-melodic-moveit-core \
+RUN apt update && apt-get update && apt install -y ros-melodic-moveit-core \
                                     ros-melodic-pcl-conversions \
                                     ros-melodic-tf2-geometry-msgs \
                                     ros-melodic-tf2-eigen \
@@ -21,7 +21,7 @@ RUN apt update && apt install -y ros-melodic-moveit-core \
                                     ros-melodic-realsense2-description \
                                     ros-melodic-rosserial-python \
                                     ros-melodic-rosserial-arduino \
-                                    ros-melodic-rosserial \
+									ros-melodic-rosserial \
                                     python3-yaml \
                                     python3-pip
 
