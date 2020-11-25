@@ -35,23 +35,14 @@ class DeprojectPixelToPoint
 		}
 
 		void deproject_callback(const PointStampedConstPtr& pixel_stamped){
-		    PointStamped pt_msg, pt_msg_transformed;
-		    Point pt;
-		    pt.x = (pixel_stamped->point.x*camera_height - cam_info["cx"]*camera_height) / cam_info["fx"];
-		    pt.y = (pixel_stamped->point.y*camera_height - cam_info["cy"]*camera_height) / cam_info["fy"];
-		    pt.z = camera_height; 
+		    PointStamped pt_msg;
+		    //Point pt;
+		    pt_msg.point.x = (pixel_stamped->point.x*camera_height - cam_info["cx"]*camera_height) / cam_info["fx"];
+		    pt_msg.point.y = (pixel_stamped->point.y*camera_height - cam_info["cy"]*camera_height) / cam_info["fy"];
+		    pt_msg.point.z = camera_height; 
 			pt_msg.header.stamp = ros::Time::now();
 		    pt_msg.header.frame_id = "camera_color_optical_frame";
-		    pt_msg.point = pt;
-		    // Transform from camera_color_optical_frame to camera_link
-		    //listener.transformPoint(camera_link, pt_msg, pt_msg_transformed);
-		    // For some reason these get messed up in the transform.. Fix them here
-		    /*auto z = pt_msg_transformed.point.z;
-		    auto y = pt_msg_transformed.point.y;
-		    auto x = pt_msg_transformed.point.x;
-		    pt_msg_transformed.point.z = x;
-		    pt_msg_transformed.point.y = z;
-		    pt_msg_transformed.point.x = y;*/
+		    //pt_msg.point = pt;
 		    
 		    point_pub_.publish(pt_msg);
 		}
