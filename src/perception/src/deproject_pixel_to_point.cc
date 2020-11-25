@@ -28,22 +28,15 @@ class DeprojectPixelToPoint
 			cam_info["cy"] = camera_info->P[6];
 			cam_info["fx"] = camera_info->P[0];
 			cam_info["fy"] = camera_info->P[5];
-			// Tx and Ty are 0 and unused
-			//cam_info["Tx"] = camera_info->P[3];
-			//cam_info["Ty"] = camera_info->P[7];
-			frame_id = camera_info->header.frame_id;
 		}
 
 		void deproject_callback(const PointStampedConstPtr& pixel_stamped){
 		    PointStamped pt_msg;
-		    //Point pt;
 		    pt_msg.point.x = (pixel_stamped->point.x*camera_height - cam_info["cx"]*camera_height) / cam_info["fx"];
 		    pt_msg.point.y = (pixel_stamped->point.y*camera_height - cam_info["cy"]*camera_height) / cam_info["fy"];
 		    pt_msg.point.z = camera_height; 
 			pt_msg.header.stamp = ros::Time::now();
 		    pt_msg.header.frame_id = "camera_color_optical_frame";
-		    //pt_msg.point = pt;
-		    
 		    point_pub_.publish(pt_msg);
 		}
 
@@ -53,10 +46,7 @@ class DeprojectPixelToPoint
 		ros::Subscriber pixel_sub_;
 		ros::Subscriber camera_info_sub_;
 		std::unordered_map<std::string, double> cam_info;
-		std::string frame_id;
-		std::string camera_link = "camera_link";
 		double camera_height;
-		tf::TransformListener listener;
 };
 
 int main(int argc, char **argv)
