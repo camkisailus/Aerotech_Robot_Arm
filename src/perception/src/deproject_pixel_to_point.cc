@@ -24,6 +24,21 @@ class DeprojectPixelToPoint
 		}
 
 		void camera_info_callback(const CameraInfoConstPtr& camera_info){
+			// 	Projection/camera matrix
+			//      [fx'  0  cx' Tx]
+			//  P = [ 0  fy' cy' Ty]
+			//      [ 0   0   1   0]
+			//  By convention, this matrix specifies the intrinsic (camera) matrix
+			//   of the processed (rectified) image. That is, the left 3x3 portion
+			//   is the normal camera intrinsic matrix for the rectified image.
+			//  It projects 3D points in the camera coordinate frame to 2D pixel
+			//   coordinates using the focal lengths (fx', fy') and principal point
+			//   (cx', cy') - these may differ from the values in K.
+			//  Given a 3D point [X Y Z]', the projection (x, y) of the point onto
+			//   the rectified image is given by:
+			//   [u v w]' = P * [X Y Z 1]'
+			//          x = u / w
+			//          y = v / w
 			cam_info["cx"] = camera_info->P[2];
 			cam_info["cy"] = camera_info->P[6];
 			cam_info["fx"] = camera_info->P[0];
