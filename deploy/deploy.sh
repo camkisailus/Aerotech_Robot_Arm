@@ -15,7 +15,9 @@ stack_build_status="$?"
 # if successful, run the container - else print what failed
 if [[ $base_build_status == "0" && $stack_build_status == "0" ]]; then
     printf "Build successful\n"
-    docker run -it --privileged -v /dev/bus/usb:/dev/bus/usb -v /dev/ttyDXL:/dev/ttyDXL -v /dev/ttyACM0:/dev/ttyACM0 aero_test bash
+    xhost +local:root
+	docker run -it --privileged -v /dev/bus/usb:/dev/bus/usb -v /dev/ttyDXL:/dev/ttyDXL -v /dev/ttyACM0:/dev/ttyACM0 --env="DISPLAY" --env="QT_X11_NO_MITSHM=1" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" aero_test bash
+    #docker run -it --privileged -v /dev/bus/usb:/dev/bus/usb -v /dev/ttyDXL:/dev/ttyDXL -v /dev/ttyACM0:/dev/ttyACM0 aero_test bash
 else
     if [[ $base_build_status == "0" ]]; then
         printf "ERROR: Stack failed to build\n"
