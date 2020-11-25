@@ -39,3 +39,10 @@ This repository serves as the software portion for my capstone engineering proje
  
  > baud_rate(default=57600): baud rate used to communicate with Arduino using `rosserial_python` 
 
+# HELP SOMETHING IS WRONG (common problems):
+Arduino Not Connecting?
+    If you receive the following error {}, it means that the wrong port is being used to communicate with the Arduino. To fix this: try changing the `arduino_port` to `/dev/ttyACM1`. If that doesn't solve it then unplug and replug the Arduino
+
+Robot Going to the Wrong Place When Picking Up Lens?
+    Did you move the camera? If so, you'll have to adjust the `x_trans_m`, `y_trans_m` and `z_trans_m` to reflect the new transform between the camera and the robot. Remember, the positive X direction is AWAY from the power cord of the robot arm, the positive Y is 90 degrees clockwise from that, and positive Z is up. The origin of this coordinate system is in the centroid of the hexagonal base portion of the robot.
+
